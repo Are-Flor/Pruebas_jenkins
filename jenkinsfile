@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm install'  // O el comando necesario para compilar tu aplicación
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'npm test'  // O el comando para ejecutar las pruebas unitarias
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                sh 'npm run integration-test'  // Comando para ejecutar pruebas de integración (usando mocka)
+            }
+        }
+
+        stage('Security Tests') {
+            steps {
+                // Escaneo de seguridad usando Trivy u otra herramienta
+                sh 'trivy image -o results.json my-docker-image'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                // Construir una imagen Docker de tu aplicación
+                sh 'docker build -t my-docker-image .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Implementa tu aplicación en un clúster de contenedores, si es necesario
+            }
+        }
+
+        stage('API Test') {
+            steps {
+                // Prueba la API generada
+                sh 'curl http://api-url/endpoint'  // Reemplaza con la URL y el punto final correctos
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '¡Pipeline exitoso!'
+        }
+        failure {
+            echo '¡Pipeline fallido!'
+        }
+    }
+}
